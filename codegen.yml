@@ -1,0 +1,16 @@
+overwrite: true
+schema: ./src/**/*/schema.graphql.ts
+generates:
+  src/generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+    config:
+      useIndexSignature: true
+      contextType: ../context#Context
+
+      # https://github.com/dotansimha/graphql-code-generator/issues/1219
+      defaultMapper: Partial<{T}>
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"

@@ -1,0 +1,6 @@
+{
+  "environment": {
+    "NODE_ENV": "local",
+    "APP_TABLE": "local-table"
+  }
+}

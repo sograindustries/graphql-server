@@ -12,6 +12,10 @@ describe("patch", () => {
     await teardown(db);
   });
 
+  afterAll(() => {
+    db.destroy();
+  });
+
   it("should return array with patches", async () => {
     const model = createPatchModel(db);
 

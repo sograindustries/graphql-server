@@ -21,6 +21,7 @@ const ddb = new DynamoDB.DocumentClient(config);
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  playground: true,
   context: req => {
     const auth = extractAuthFromEvent(req.event);
 

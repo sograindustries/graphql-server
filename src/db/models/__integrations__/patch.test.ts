@@ -43,4 +43,20 @@ describe("patch", () => {
     const patches = await model.getPatchesByUserId(777);
     expect(patches.length).toBe(0);
   });
+
+  it("should create a patch", async () => {
+    const model = createPatchModel(db);
+
+    await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+    const uuid = "f3ef4b00-9a29-47c9-b7fb-e1f91edf841b";
+    const patch = await model.create({ user_id: 1, uuid });
+    expect(patch).toEqual({
+      id: 1,
+      user_id: 1,
+      uuid,
+      created_at: expect.any(Date),
+      updated_at: expect.any(Date)
+    });
+  });
 });

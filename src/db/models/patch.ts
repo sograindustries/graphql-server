@@ -14,7 +14,13 @@ export type PatchEntity = Entity<Patch>;
 export function createPatchModel(db: Knex) {
   return {
     create: async (patch: Patch) => {
-      return db.table<PatchEntity>(TABLE_NAME_PATCH).insert(patch);
+      const [id] = await db.table<PatchEntity>(TABLE_NAME_PATCH).insert(patch);
+
+      return db
+        .table<PatchEntity>(TABLE_NAME_PATCH)
+        .select("*")
+        .where("id", id)
+        .first();
     },
     update: async (id: number, patch: Patch) => {
       return db

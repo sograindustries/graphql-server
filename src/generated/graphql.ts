@@ -1,6 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { Context } from '../context';
 export type Maybe<T> = T | null;
+export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string,
@@ -8,6 +9,35 @@ export type Scalars = {
   Boolean: boolean,
   Int: number,
   Float: number,
+};
+
+/** Creates a patch. */
+export type CreatePatchInput = {
+  uuid?: Maybe<Scalars['String']>,
+  userId?: Maybe<Scalars['Int']>,
+};
+
+export type CreatePatchPayload = {
+   __typename?: 'CreatePatchPayload',
+  /** The patch created. */
+  patch?: Maybe<Patch>,
+};
+
+export type Mutation = {
+   __typename?: 'Mutation',
+  updatePatch?: Maybe<UpdatePatchPayload>,
+  createPatch?: Maybe<CreatePatchPayload>,
+  version?: Maybe<Scalars['String']>,
+};
+
+
+export type MutationUpdatePatchArgs = {
+  input: UpdatePatchInput
+};
+
+
+export type MutationCreatePatchArgs = {
+  input: CreatePatchInput
 };
 
 export type Patch = {
@@ -27,6 +57,18 @@ export type Query = {
 export type QueryUserArgs = {
   id?: Maybe<Scalars['Int']>,
   username?: Maybe<Scalars['String']>
+};
+
+/** Updates patch of provided ID. */
+export type UpdatePatchInput = {
+  id: Scalars['Int'],
+  uuid?: Maybe<Scalars['String']>,
+};
+
+export type UpdatePatchPayload = {
+   __typename?: 'UpdatePatchPayload',
+  /** The patch updated. */
+  patch?: Maybe<Patch>,
 };
 
 export type User = {
@@ -115,6 +157,11 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Partial<Scalars['Int']>>,
   User: ResolverTypeWrapper<Partial<User>>,
   Patch: ResolverTypeWrapper<Partial<Patch>>,
+  Mutation: ResolverTypeWrapper<{}>,
+  UpdatePatchInput: ResolverTypeWrapper<Partial<UpdatePatchInput>>,
+  UpdatePatchPayload: ResolverTypeWrapper<Partial<UpdatePatchPayload>>,
+  CreatePatchInput: ResolverTypeWrapper<Partial<CreatePatchInput>>,
+  CreatePatchPayload: ResolverTypeWrapper<Partial<CreatePatchPayload>>,
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']>>,
 }>;
 
@@ -125,7 +172,22 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Partial<Scalars['Int']>,
   User: Partial<User>,
   Patch: Partial<Patch>,
+  Mutation: {},
+  UpdatePatchInput: Partial<UpdatePatchInput>,
+  UpdatePatchPayload: Partial<UpdatePatchPayload>,
+  CreatePatchInput: Partial<CreatePatchInput>,
+  CreatePatchPayload: Partial<CreatePatchPayload>,
   Boolean: Partial<Scalars['Boolean']>,
+}>;
+
+export type CreatePatchPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatePatchPayload'] = ResolversParentTypes['CreatePatchPayload']> = ResolversObject<{
+  patch?: Resolver<Maybe<ResolversTypes['Patch']>, ParentType, ContextType>,
+}>;
+
+export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  updatePatch?: Resolver<Maybe<ResolversTypes['UpdatePatchPayload']>, ParentType, ContextType, RequireFields<MutationUpdatePatchArgs, 'input'>>,
+  createPatch?: Resolver<Maybe<ResolversTypes['CreatePatchPayload']>, ParentType, ContextType, RequireFields<MutationCreatePatchArgs, 'input'>>,
+  version?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
 }>;
 
 export type PatchResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Patch'] = ResolversParentTypes['Patch']> = ResolversObject<{
@@ -139,6 +201,10 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   viewer?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>,
 }>;
 
+export type UpdatePatchPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdatePatchPayload'] = ResolversParentTypes['UpdatePatchPayload']> = ResolversObject<{
+  patch?: Resolver<Maybe<ResolversTypes['Patch']>, ParentType, ContextType>,
+}>;
+
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   patches?: Resolver<Array<ResolversTypes['Patch']>, ParentType, ContextType>,
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
@@ -148,8 +214,11 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  CreatePatchPayload?: CreatePatchPayloadResolvers<ContextType>,
+  Mutation?: MutationResolvers<ContextType>,
   Patch?: PatchResolvers<ContextType>,
   Query?: QueryResolvers<ContextType>,
+  UpdatePatchPayload?: UpdatePatchPayloadResolvers<ContextType>,
   User?: UserResolvers<ContextType>,
 }>;
 

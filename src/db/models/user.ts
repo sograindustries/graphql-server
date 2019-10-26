@@ -1,7 +1,6 @@
 import { Entity } from ".";
 import Knex = require("knex");
-import { TABLE_NAME_USER, TABLE_NAME_PATCH } from "../tables";
-import { PatchEntity } from "./patch";
+import { TABLE_NAME_USER } from "../tables";
 
 interface User {
   username: string;
@@ -11,24 +10,28 @@ export type UserEntity = Entity<User>;
 
 export function createUserModel(db: Knex) {
   return {
-    getPatchesByUserId: (userId: number) => {
+    create: async (user: User) => {
+      const [id] = await db.table<UserEntity>(TABLE_NAME_USER).insert(user);
+
       return db
         .table<UserEntity>(TABLE_NAME_USER)
-        .join<PatchEntity>(
-          TABLE_NAME_PATCH,
-          `${TABLE_NAME_USER}.id`,
-          "=",
-          `${TABLE_NAME_PATCH}.user_id`
-        )
-        .where(`${TABLE_NAME_USER}.id`, userId)
-        .select("uuid")
-        .then(rows => {
-          return rows.map(row => {
-            return {
-              uuid: row.uuid
-            };
-          });
-        });
+        .select("*")
+        .where("id", id)
+        .first();
+    },
+    getUserByUsername: (username: string) => {
+      return db
+        .table<UserEntity>(TABLE_NAME_USER)
+        .where("username", username)
+        .select("*")
+        .first();
+    },
+    getUserById: (id: number) => {
+      return db
+        .table<UserEntity>(TABLE_NAME_USER)
+        .where("id", id)
+        .select("*")
+        .first();
     }
   };
 }

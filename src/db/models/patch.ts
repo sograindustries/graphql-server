@@ -23,10 +23,16 @@ export function createPatchModel(db: Knex) {
         .first();
     },
     update: async (id: number, patch: Patch) => {
-      return db
+      await db
         .table<PatchEntity>(TABLE_NAME_PATCH)
         .where("id", id)
         .update(patch);
+
+      return db
+        .table<PatchEntity>(TABLE_NAME_PATCH)
+        .select("*")
+        .where("id", id)
+        .first();
     },
     getById: (id: number) => {
       return db

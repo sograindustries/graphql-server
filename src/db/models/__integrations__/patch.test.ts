@@ -33,7 +33,20 @@ describe("patch", () => {
     const model = createPatchModel(db);
 
     const patches = await model.getPatchesByUserId(1);
-    expect(patches).toEqual([{ uuid: "patch-1" }, { uuid: "patch-2" }]);
+    expect(patches).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          user_id: 1,
+          uuid: "patch-1"
+        }),
+        expect.objectContaining({
+          id: 2,
+          user_id: 1,
+          uuid: "patch-2"
+        })
+      ])
+    );
   });
 
   it("should return empty array", async () => {

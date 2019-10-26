@@ -14,7 +14,6 @@ export type Patch = {
    __typename?: 'Patch',
   id: Scalars['Int'],
   uuid: Scalars['String'],
-  data: Array<Scalars['Int']>,
 };
 
 export type Query = {
@@ -132,7 +131,6 @@ export type ResolversParentTypes = ResolversObject<{
 export type PatchResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Patch'] = ResolversParentTypes['Patch']> = ResolversObject<{
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
   uuid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
-  data?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>,
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{

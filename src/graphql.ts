@@ -4,6 +4,7 @@ import resolvers from "./resolvers";
 import { Context } from "./context";
 import { makeApi } from "./api";
 import { DynamoDB } from "aws-sdk";
+import { db } from "./db";
 
 const isTest = process.env.JEST_WORKER_ID;
 const config = {
@@ -24,7 +25,7 @@ const server = new ApolloServer({
     const auth = extractAuthFromEvent(req.event);
 
     return {
-      api: makeApi({}, { ddb }),
+      api: makeApi({}, { ddb, db }),
       auth
     } as Context;
   }

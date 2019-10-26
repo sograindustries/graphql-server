@@ -51,14 +51,7 @@ export function createPatchModel(db: Knex) {
           `${TABLE_NAME_PATCH}.user_id`
         )
         .where(`${TABLE_NAME_USER}.id`, userId)
-        .select("uuid")
-        .then(rows => {
-          return rows.map(row => {
-            return {
-              uuid: row.uuid
-            };
-          });
-        });
+        .select("*");
     }
   };
 }

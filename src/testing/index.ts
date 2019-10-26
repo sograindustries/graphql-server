@@ -4,9 +4,11 @@ import resolvers from "../resolvers";
 import { Context } from "../context";
 import { Api } from "../api";
 
+export type MockApi = Partial<{ [k in keyof Api]: Partial<Api[k]> }>;
+
 export const createMockServer = (
   partialContext: Partial<Context>,
-  partialApi: Partial<{ [k in keyof Api]: Partial<Api[k]> }>
+  partialApi: MockApi
 ) =>
   new ApolloServer({
     typeDefs,

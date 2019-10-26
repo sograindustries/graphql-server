@@ -1,17 +1,19 @@
-import { makeService as makePatchService } from "./patch";
 import { DynamoDB } from "aws-sdk";
-import { makeService as makeUserService } from "./user";
+import { createPatchModel } from "../db/models/patch";
+import Knex = require("knex");
+import { createUserModel } from "../db/models/user";
 
 interface Config {}
 
 interface Stores {
   ddb: DynamoDB.DocumentClient;
+  db: Knex;
 }
 
 export const makeApi = (_: Config, stores: Stores) => {
   return {
-    patch: makePatchService(stores.ddb),
-    user: makeUserService(stores.ddb)
+    user: createUserModel(stores.db),
+    patch: createPatchModel(stores.db)
   };
 };
 

@@ -61,7 +61,7 @@ describe("patch", () => {
     const patch = await model.create({ user_id: 1, uuid });
 
     expect(patch).toEqual(expectedPatch);
-    expect(model.getById(patch!.id)).toEqual(expectedPatch);
+    expect(await model.getById(patch!.id)).toEqual(expectedPatch);
   });
 
   it("should update a patch", async () => {

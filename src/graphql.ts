@@ -5,13 +5,17 @@ import { Context } from "./context";
 import { makeApi } from "./api";
 import { DynamoDB } from "aws-sdk";
 
-const ddb =
-  process.env.NODE_ENV === "production"
-    ? new DynamoDB.DocumentClient()
-    : new DynamoDB.DocumentClient({
-        region: "localhost",
-        endpoint: "http://localhost:8000"
-      });
+const isTest = process.env.JEST_WORKER_ID;
+const config = {
+  convertEmptyValues: true,
+  ...(isTest && {
+    endpoint: "localhost:8000",
+    sslEnabled: false,
+    region: "local-env"
+  })
+};
+
+const ddb = new DynamoDB.DocumentClient(config);
 
 const server = new ApolloServer({
   typeDefs,

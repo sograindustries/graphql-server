@@ -1,3 +1,5 @@
 # graphql-server
 
-![](https://github.com/argosindustries/graphql-server/workflows/.github/workflows/deploy.yml/badge.svg)
+![](https://github.com/sograindustries/graphql-server/workflows/.github/workflows/deploy.yml/badge.svg)
+
+hello world

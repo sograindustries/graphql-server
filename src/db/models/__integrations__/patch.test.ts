@@ -45,6 +45,26 @@ describe("patch", () => {
   });
 
   it("should create a patch", async () => {
+    const uuid = "f3ef4b00-9a29-47c9-b7fb-e1f91edf841b";
+    const expectedPatch = {
+      id: 1,
+      user_id: 1,
+      uuid,
+      created_at: expect.any(Date),
+      updated_at: expect.any(Date)
+    };
+
+    const model = createPatchModel(db);
+
+    await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+    const patch = await model.create({ user_id: 1, uuid });
+
+    expect(patch).toEqual(expectedPatch);
+    expect(model.getById(patch!.id)).toEqual(expectedPatch);
+  });
+
+  it("should update a patch", async () => {
     const model = createPatchModel(db);
 
     await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);

@@ -8,6 +8,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: docker-compose
+        run: docker-compose up -d
       - name: Yarn Install
         run: yarn
       - name: Build

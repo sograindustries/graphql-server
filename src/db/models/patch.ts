@@ -1,15 +1,7 @@
 import Knex = require("knex");
-import { db } from ".";
-
-const TABLE_NAME_USERS = "users";
-const TABLE_NAME_PATCH = "patches";
-
-type Entity<T> = T & {
-  id: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string;
-};
+import { Entity } from ".";
+import { TABLE_NAME_PATCH, TABLE_NAME_USER } from "../tables";
+import { UserEntity } from "./user";
 
 interface Patch {
   uuid: string;
@@ -17,12 +9,7 @@ interface Patch {
   user_id: number;
 }
 
-interface User {
-  username: string;
-}
-
-type PatchEntity = Entity<Patch>;
-type UserEntity = Entity<User>;
+export type PatchEntity = Entity<Patch>;
 
 export function createPatchModel(db: Knex) {
   return {
@@ -41,17 +28,17 @@ export function createPatchModel(db: Knex) {
         .select("*")
         .where("id", id)
         .first();
-    }
-  };
-}
-
-export function createUserModel(db: Knex) {
-  return {
-    getPatches: (userId: number) => {
+    },
+    getPatchesByUserId: (userId: number) => {
       return db
-        .table<UserEntity>(TABLE_NAME_USERS)
-        .join<PatchEntity>(TABLE_NAME_PATCH, "users.id", "=", "patches.user_id")
-        .where("users.id", userId)
+        .table<UserEntity>(TABLE_NAME_USER)
+        .join<PatchEntity>(
+          TABLE_NAME_PATCH,
+          `${TABLE_NAME_USER}.id`,
+          "=",
+          `${TABLE_NAME_PATCH}.user_id`
+        )
+        .where(`${TABLE_NAME_USER}.id`, userId)
         .select("uuid")
         .then(rows => {
           return rows.map(row => {
@@ -63,12 +50,3 @@ export function createUserModel(db: Knex) {
     }
   };
 }
-
-const model = createUserModel(db);
-
-(async () => {
-  const patches = await model.getPatches(1234);
-  if (patches) {
-    patches.map(p => p.uuid);
-  }
-})();

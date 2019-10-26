@@ -11,7 +11,7 @@ const GET_VIEWER = gql`
 `;
 
 describe("resolvers", () => {
-  it("should return authenticated user", async () => {
+  it.skip("should return authenticated user", async () => {
     const { query } = createTestClient(
       createMockServer(
         { auth: { username: "some-id", jwt: "" } },

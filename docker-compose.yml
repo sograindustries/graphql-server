@@ -16,6 +16,6 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: password
     ports:
-      - 3306:3306
+      - 3306:3307
     environment:
       MYSQL_ROOT_PASSWORD: root

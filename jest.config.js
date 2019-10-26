@@ -3,6 +3,6 @@ module.exports = {
   transform: {
     "^.+\\.tsx?$": "ts-jest"
   },
-  testMatch: ["**/__integrations__/**/*.test.ts"],
-  preset: "@shelf/jest-dynamodb"
+  testMatch: ["**/__integrations__/**/*.test.ts"]
+  // preset: "@shelf/jest-dynamodb"
 };

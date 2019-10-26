@@ -10,7 +10,6 @@ export async function up(knex: Knex): Promise<any> {
       .notNullable();
     patches.timestamp("created_at").defaultTo(knex.fn.now());
     patches.timestamp("updated_at").defaultTo(knex.fn.now());
-    patches.timestamp("deleted_at");
 
     patches
       .integer("user_id")

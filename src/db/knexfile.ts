@@ -4,7 +4,10 @@ module.exports = {
   development: {
     client: "mysql2",
     connection: {
-      filename: "./dev.sqlite3"
+      host: "127.0.0.1",
+      database: "sogra",
+      user: "root",
+      password: "root"
     }
   },
 

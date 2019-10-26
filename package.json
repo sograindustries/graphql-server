@@ -35,6 +35,7 @@
     "build": "yarn codegen && tsc",
     "codegen": "graphql-codegen --config codegen.yml",
     "test": "jest",
-    "migrate": "knex migrate:latest"
+    "migrate": "knex migrate:latest",
+    "deploy": "sls deploy --stage production"
   }
 }

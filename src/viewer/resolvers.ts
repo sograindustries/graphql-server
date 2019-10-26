@@ -9,7 +9,7 @@ const resolvers: Resolvers = {
       }
       return {
         username: "will@argosindustries.com",
-        id: "will@argosindustries.com"
+        id: 1
       };
     }
   }

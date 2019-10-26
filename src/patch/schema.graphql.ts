@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export default gql`
   type Patch {
-    id: String!
+    id: Int!
     uuid: String!
     data: [Int!]!
   }

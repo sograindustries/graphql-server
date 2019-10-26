@@ -62,7 +62,7 @@ const resolvers: Resolvers = {
 
       return [
         {
-          id: "1111",
+          id: 1111,
           uuid: "1111",
           data: []
         }

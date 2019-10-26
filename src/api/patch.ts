@@ -1,7 +1,7 @@
 import { DynamoDB } from "aws-sdk";
 
 interface Patch {
-  id: string; // same as uuid.
+  id: number; // same as uuid.
   uuid: string;
   batteryPct?: number;
   userId?: number;

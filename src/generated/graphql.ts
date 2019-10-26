@@ -12,7 +12,7 @@ export type Scalars = {
 
 export type Patch = {
    __typename?: 'Patch',
-  id: Scalars['String'],
+  id: Scalars['Int'],
   uuid: Scalars['String'],
   data: Array<Scalars['Int']>,
 };
@@ -26,14 +26,14 @@ export type Query = {
 
 
 export type QueryUserArgs = {
-  id?: Maybe<Scalars['String']>,
+  id?: Maybe<Scalars['Int']>,
   username?: Maybe<Scalars['String']>
 };
 
 export type User = {
    __typename?: 'User',
   patches: Array<Patch>,
-  id: Scalars['String'],
+  id: Scalars['Int'],
   username: Scalars['String'],
   firstName?: Maybe<Scalars['String']>,
   lastName?: Maybe<Scalars['String']>,
@@ -113,9 +113,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>,
   String: ResolverTypeWrapper<Partial<Scalars['String']>>,
+  Int: ResolverTypeWrapper<Partial<Scalars['Int']>>,
   User: ResolverTypeWrapper<Partial<User>>,
   Patch: ResolverTypeWrapper<Partial<Patch>>,
-  Int: ResolverTypeWrapper<Partial<Scalars['Int']>>,
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']>>,
 }>;
 
@@ -123,14 +123,14 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Query: {},
   String: Partial<Scalars['String']>,
+  Int: Partial<Scalars['Int']>,
   User: Partial<User>,
   Patch: Partial<Patch>,
-  Int: Partial<Scalars['Int']>,
   Boolean: Partial<Scalars['Boolean']>,
 }>;
 
 export type PatchResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Patch'] = ResolversParentTypes['Patch']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
   uuid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   data?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>,
 }>;
@@ -143,7 +143,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   patches?: Resolver<Array<ResolversTypes['Patch']>, ParentType, ContextType>,
-  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,

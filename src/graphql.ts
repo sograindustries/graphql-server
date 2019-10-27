@@ -22,12 +22,17 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   playground: true,
-  context: req => {
+  context: async req => {
     const auth = extractAuthFromEvent(req.event);
 
+    const api = makeApi({}, { ddb, db });
+
+    const user = auth ? await api.user.getUserByUsername(auth.username) : null;
+    const userId = user ? user.id : null;
+
     return {
-      api: makeApi({}, { ddb, db }),
-      auth
+      api,
+      auth: { ...auth, id: userId }
     } as Context;
   }
 });

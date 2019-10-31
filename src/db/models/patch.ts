@@ -1,6 +1,11 @@
 import Knex = require("knex");
 import { Entity } from ".";
-import { TABLE_NAME_PATCH, TABLE_NAME_USER } from "../tables";
+import {
+  TABLE_NAME_PATCH,
+  TABLE_NAME_USER,
+  TABLE_NAME_PATCH_BATTERY,
+  TABLE_NAME_USER_PATCH_S3_DATA
+} from "../tables";
 import { UserEntity } from "./user";
 
 interface Patch {
@@ -9,7 +14,19 @@ interface Patch {
   user_id: number;
 }
 
-export type PatchEntity = Entity<Patch>;
+interface PatchBattery {
+  patch_id: number;
+  value: number;
+}
+
+interface PatchEcgData {
+  patch_id: number;
+  s3_uri: string;
+}
+
+type PatchEntity = Entity<Patch>;
+type PatchBatteryEntity = Entity<PatchBattery>;
+type PatchEcgDataEntity = Entity<PatchEcgData>;
 
 export function createPatchModel(db: Knex) {
   return {
@@ -52,6 +69,51 @@ export function createPatchModel(db: Knex) {
         )
         .where(`${TABLE_NAME_USER}.id`, userId)
         .select("*");
+    },
+
+    insertEcgPayload: async (patchId: number, uri: string) => {
+      const [id] = await db
+        .table<PatchEcgDataEntity>(TABLE_NAME_USER_PATCH_S3_DATA)
+        .insert({ patch_id: patchId, s3_uri: uri });
+
+      return db
+        .table<PatchEcgDataEntity>(TABLE_NAME_USER_PATCH_S3_DATA)
+        .select("*")
+        .where("id", id)
+        .first();
+    },
+
+    listEcgPayload: async (patchId: number) => {
+      return db
+        .table<PatchEcgData>(TABLE_NAME_USER_PATCH_S3_DATA)
+        .select("*")
+        .where("patch_id", patchId);
+    },
+
+    insertBatteryValue: async (patchId: number, value: number) => {
+      const [id] = await db
+        .table<PatchBatteryEntity>(TABLE_NAME_PATCH_BATTERY)
+        .insert({ patch_id: patchId, value });
+
+      return db
+        .table<PatchBatteryEntity>(TABLE_NAME_PATCH_BATTERY)
+        .select("*")
+        .where("id", id)
+        .first();
+    },
+    listBatteryValue: (id: number) => {
+      return db
+        .table<PatchBatteryEntity>(TABLE_NAME_PATCH_BATTERY)
+        .select("*")
+        .where("patch_id", id);
+    },
+    getBatteryValue: (id: number) => {
+      return db
+        .table<PatchBatteryEntity>(TABLE_NAME_PATCH_BATTERY)
+        .select("*")
+        .where("patch_id", id)
+        .orderBy("created_at", "desc")
+        .first();
     }
   };
 }

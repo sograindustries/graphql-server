@@ -1,7 +1,11 @@
 import { db } from "../..";
 import { setup, teardown } from "../../testing";
 import { createPatchModel } from "../patch";
-import { TABLE_NAME_USER, TABLE_NAME_PATCH } from "../../tables";
+import {
+  TABLE_NAME_USER,
+  TABLE_NAME_PATCH,
+  TABLE_NAME_PATCH_BATTERY
+} from "../../tables";
 
 describe("patch", () => {
   beforeEach(async () => {
@@ -101,5 +105,112 @@ describe("patch", () => {
     });
     expect(patch).toEqual(expectedPatch);
     expect(await model.getById(1)).toEqual(expectedPatch);
+  });
+
+  describe("battery", () => {
+    it("should insert battery value", async () => {
+      const patchId = 1;
+
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: patchId, user_id: 1, uuid: "patch-1" }
+      ]);
+
+      const model = createPatchModel(db);
+      const battery = await model.insertBatteryValue(patchId, 0.5);
+
+      expect(battery).toEqual(
+        expect.objectContaining({ id: 1, patch_id: patchId, value: 0.5 })
+      );
+
+      expect(await model.getBatteryValue(patchId)).toEqual(
+        expect.objectContaining({ patch_id: patchId, value: 0.5 })
+      );
+    });
+
+    it("should list battery values", async () => {
+      const patchId = 1;
+
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: patchId, user_id: 1, uuid: "patch-1" }
+      ]);
+
+      // setup patch battery values.
+      await db(TABLE_NAME_PATCH_BATTERY).insert([
+        { id: 1, patch_id: patchId, value: 1 },
+        { id: 2, patch_id: patchId, value: 0.5 },
+        { id: 3, patch_id: patchId, value: 0.2 }
+      ]);
+
+      const model = createPatchModel(db);
+      expect(await model.listBatteryValue(patchId)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ patch_id: patchId, value: 1 }),
+          expect.objectContaining({ patch_id: patchId, value: 0.5 }),
+          expect.objectContaining({ patch_id: patchId, value: 0.2 })
+        ])
+      );
+    });
+
+    it("should get latest battery value", async () => {
+      const patchId = 1;
+
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: patchId, user_id: 1, uuid: "patch-1" }
+      ]);
+
+      const model = createPatchModel(db);
+
+      // setup patch battery values.
+      await db(TABLE_NAME_PATCH_BATTERY).insert([
+        {
+          id: 1,
+          patch_id: patchId,
+          value: 1,
+          created_at: new Date(new Date().setDate(new Date().getDate() - 1))
+        },
+        { id: 2, patch_id: patchId, value: 0.5, created_at: new Date() }
+      ]);
+
+      expect(await model.getBatteryValue(patchId)).toEqual(
+        expect.objectContaining({ patch_id: patchId, value: 0.5 })
+      );
+    });
+  });
+
+  describe("ecg data", () => {
+    it("should insert battery value", async () => {
+      const patchId = 1;
+
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: patchId, user_id: 1, uuid: "patch-1" }
+      ]);
+
+      const model = createPatchModel(db);
+      const battery = await model.insertEcgPayload(patchId, "some-s3-uri");
+
+      expect(battery).toEqual(
+        expect.objectContaining({
+          id: 1,
+          patch_id: patchId,
+          s3_uri: "some-s3-uri"
+        })
+      );
+    });
   });
 });

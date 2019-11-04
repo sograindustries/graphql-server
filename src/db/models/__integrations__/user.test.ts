@@ -20,12 +20,18 @@ describe("user", () => {
     const expectedUser = {
       id: 1,
       username: "will@argosindustries.com",
+      first_name: "first-name",
+      last_name: "last-name",
       created_at: expect.any(Date),
       updated_at: expect.any(Date)
     };
 
     const model = createUserModel(db);
-    const user = await model.create({ username: expectedUser.username });
+    const user = await model.create({
+      username: expectedUser.username,
+      first_name: expectedUser.first_name,
+      last_name: expectedUser.last_name
+    });
     expect(user).toEqual(expectedUser);
     expect(await model.getUserById(user!.id)).toEqual(expectedUser);
   });
@@ -34,12 +40,19 @@ describe("user", () => {
     const expectedUser = {
       id: 1,
       username: "will@argosindustries.com",
+      first_name: "first-name",
+      last_name: "last-name",
       created_at: expect.any(Date),
       updated_at: expect.any(Date)
     };
 
     await db(TABLE_NAME_USER).insert([
-      { id: expectedUser.id, username: expectedUser.username }
+      {
+        id: expectedUser.id,
+        username: expectedUser.username,
+        first_name: expectedUser.first_name,
+        last_name: expectedUser.last_name
+      }
     ]);
 
     const model = createUserModel(db);
@@ -50,12 +63,19 @@ describe("user", () => {
     const expectedUser = {
       id: 1,
       username: "will@argosindustries.com",
+      first_name: "first-name",
+      last_name: "last-name",
       created_at: expect.any(Date),
       updated_at: expect.any(Date)
     };
 
     await db(TABLE_NAME_USER).insert([
-      { id: expectedUser.id, username: expectedUser.username }
+      {
+        id: expectedUser.id,
+        username: expectedUser.username,
+        first_name: expectedUser.first_name,
+        last_name: expectedUser.last_name
+      }
     ]);
 
     const model = createUserModel(db);

@@ -4,7 +4,8 @@ import { createPatchModel } from "../patch";
 import {
   TABLE_NAME_USER,
   TABLE_NAME_PATCH,
-  TABLE_NAME_PATCH_BATTERY
+  TABLE_NAME_PATCH_BATTERY,
+  TABLE_NAME_PATCH_READING
 } from "../../tables";
 
 describe("patch", () => {
@@ -16,8 +17,8 @@ describe("patch", () => {
     await teardown(db);
   });
 
-  afterAll(() => {
-    db.destroy();
+  afterAll(async () => {
+    await db.destroy();
   });
 
   it("should return array with patches", async () => {
@@ -29,9 +30,9 @@ describe("patch", () => {
 
     // setup patches
     await db(TABLE_NAME_PATCH).insert([
-      { id: 1, user_id: 1, uuid: "patch-1" },
-      { id: 2, user_id: 1, uuid: "patch-2" },
-      { id: 3, user_id: 2, uuid: "patch-3" }
+      { id: 1, user_id: 1, ble_id: "patch-1" },
+      { id: 2, user_id: 1, ble_id: "patch-2" },
+      { id: 3, user_id: 2, ble_id: "patch-3" }
     ]);
 
     const model = createPatchModel(db);
@@ -42,12 +43,12 @@ describe("patch", () => {
         expect.objectContaining({
           id: 1,
           user_id: 1,
-          uuid: "patch-1"
+          ble_id: "patch-1"
         }),
         expect.objectContaining({
           id: 2,
           user_id: 1,
-          uuid: "patch-2"
+          ble_id: "patch-2"
         })
       ])
     );
@@ -56,7 +57,9 @@ describe("patch", () => {
   it("should return empty array", async () => {
     // setup
     await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
-    await db(TABLE_NAME_PATCH).insert([{ id: 1, user_id: 1, uuid: "patch-1" }]);
+    await db(TABLE_NAME_PATCH).insert([
+      { id: 1, user_id: 1, ble_id: "patch-1" }
+    ]);
 
     const model = createPatchModel(db);
     const patches = await model.getPatchesByUserId(777);
@@ -64,11 +67,11 @@ describe("patch", () => {
   });
 
   it("should create a patch", async () => {
-    const uuid = "f3ef4b00-9a29-47c9-b7fb-e1f91edf841b";
+    const ble_id = "f3ef4b00-9a29-47c9-b7fb-e1f91edf841b";
     const expectedPatch = {
       id: 1,
       user_id: 1,
-      uuid,
+      ble_id,
       created_at: expect.any(Date),
       updated_at: expect.any(Date)
     };
@@ -77,7 +80,7 @@ describe("patch", () => {
     await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
 
     const model = createPatchModel(db);
-    const patch = await model.create({ user_id: 1, uuid });
+    const patch = await model.create({ user_id: 1, ble_id });
     expect(patch).toEqual(expectedPatch);
     expect(await model.getById(patch!.id)).toEqual(expectedPatch);
   });
@@ -86,7 +89,7 @@ describe("patch", () => {
     const expectedPatch = {
       id: 1,
       user_id: 1,
-      uuid: "new-patch-uuid",
+      ble_id: "new-patch-ble_id",
       created_at: expect.any(Date),
       updated_at: expect.any(Date)
     };
@@ -94,14 +97,14 @@ describe("patch", () => {
     // setup
     await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
     await db(TABLE_NAME_PATCH).insert([
-      { id: 1, user_id: 1, uuid: "patch-1" },
-      { id: 2, user_id: 1, uuid: "patch-2" }
+      { id: 1, user_id: 1, ble_id: "patch-1" },
+      { id: 2, user_id: 1, ble_id: "patch-2" }
     ]);
 
     const model = createPatchModel(db);
     const patch = await model.update(1, {
       user_id: 1,
-      uuid: expectedPatch.uuid
+      ble_id: expectedPatch.ble_id
     });
     expect(patch).toEqual(expectedPatch);
     expect(await model.getById(1)).toEqual(expectedPatch);
@@ -116,7 +119,7 @@ describe("patch", () => {
 
       // setup patches.
       await db(TABLE_NAME_PATCH).insert([
-        { id: patchId, user_id: 1, uuid: "patch-1" }
+        { id: patchId, user_id: 1, ble_id: "patch-1" }
       ]);
 
       const model = createPatchModel(db);
@@ -139,7 +142,7 @@ describe("patch", () => {
 
       // setup patches.
       await db(TABLE_NAME_PATCH).insert([
-        { id: patchId, user_id: 1, uuid: "patch-1" }
+        { id: patchId, user_id: 1, ble_id: "patch-1" }
       ]);
 
       // setup patch battery values.
@@ -167,7 +170,7 @@ describe("patch", () => {
 
       // setup patches.
       await db(TABLE_NAME_PATCH).insert([
-        { id: patchId, user_id: 1, uuid: "patch-1" }
+        { id: patchId, user_id: 1, ble_id: "patch-1" }
       ]);
 
       const model = createPatchModel(db);
@@ -198,7 +201,7 @@ describe("patch", () => {
 
       // setup patches.
       await db(TABLE_NAME_PATCH).insert([
-        { id: patchId, user_id: 1, uuid: "patch-1" }
+        { id: patchId, user_id: 1, ble_id: "patch-1" }
       ]);
 
       const model = createPatchModel(db);
@@ -210,6 +213,62 @@ describe("patch", () => {
           patch_id: patchId,
           s3_uri: "some-s3-uri"
         })
+      );
+    });
+  });
+
+  describe("readings", () => {
+    it("should insert reading", async () => {
+      const patchId = 1;
+
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: patchId, user_id: 1, ble_id: "patch-1" }
+      ]);
+
+      const model = createPatchModel(db);
+      const reading = await model.insertReading(patchId, "some-uri");
+
+      expect(reading).toEqual(
+        expect.objectContaining({ id: 1, patch_id: patchId, uri: "some-uri" })
+      );
+    });
+
+    it("should list readings", async () => {
+      const patchId = 1;
+
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: patchId, user_id: 1, ble_id: "patch-1" }
+      ]);
+
+      await db(TABLE_NAME_PATCH_READING).insert([
+        { id: 1, patch_id: patchId, uri: "uri-1" },
+        { id: 2, patch_id: patchId, uri: "uri-2" }
+      ]);
+
+      const model = createPatchModel(db);
+      const listings = await model.listReadings(patchId);
+
+      expect(listings).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 1,
+            patch_id: patchId,
+            uri: "uri-1"
+          }),
+          expect.objectContaining({
+            id: 2,
+            patch_id: patchId,
+            uri: "uri-2"
+          })
+        ])
       );
     });
   });

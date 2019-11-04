@@ -8,6 +8,9 @@ export async function up(knex: Knex): Promise<any> {
       .string("username")
       .unique()
       .notNullable();
+    users.string("first_name");
+    users.string("last_name");
+
     users.timestamp("created_at").defaultTo(knex.fn.now());
     users.timestamp("updated_at").defaultTo(knex.fn.now());
   });

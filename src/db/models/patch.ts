@@ -4,13 +4,13 @@ import {
   TABLE_NAME_PATCH,
   TABLE_NAME_USER,
   TABLE_NAME_PATCH_BATTERY,
-  TABLE_NAME_USER_PATCH_S3_DATA
+  TABLE_NAME_USER_PATCH_S3_DATA,
+  TABLE_NAME_PATCH_READING
 } from "../tables";
 import { UserEntity } from "./user";
 
 interface Patch {
-  uuid: string;
-
+  ble_id?: string;
   user_id: number;
 }
 
@@ -24,9 +24,15 @@ interface PatchEcgData {
   s3_uri: string;
 }
 
+interface PatchReading {
+  patch_id: number;
+  uri: string;
+}
+
 type PatchEntity = Entity<Patch>;
 type PatchBatteryEntity = Entity<PatchBattery>;
 type PatchEcgDataEntity = Entity<PatchEcgData>;
+export type PatchReadingEntity = Entity<PatchReading>;
 
 export function createPatchModel(db: Knex) {
   return {
@@ -58,6 +64,15 @@ export function createPatchModel(db: Knex) {
         .where("id", id)
         .first();
     },
+
+    getByBleId: (id: string) => {
+      return db
+        .table<PatchEntity>(TABLE_NAME_PATCH)
+        .select("*")
+        .where("ble_id", id)
+        .first();
+    },
+
     getPatchesByUserId: (userId: number) => {
       return db
         .table<UserEntity>(TABLE_NAME_USER)
@@ -113,6 +128,31 @@ export function createPatchModel(db: Knex) {
         .select("*")
         .where("patch_id", id)
         .orderBy("created_at", "desc")
+        .first();
+    },
+
+    listReadings: async (patchId: number) => {
+      return db
+        .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
+        .select("*")
+        .where("patch_id", patchId)
+        .then(arr => {
+          return arr.map(el => ({
+            ...el,
+            createdAt: el.created_at
+          }));
+        });
+    },
+
+    insertReading: async (patchId: number, uri: string) => {
+      const [id] = await db
+        .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
+        .insert({ patch_id: patchId, uri });
+
+      return db
+        .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
+        .select("*")
+        .where("id", id)
         .first();
     }
   };

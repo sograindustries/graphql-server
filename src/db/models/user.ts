@@ -4,6 +4,8 @@ import { TABLE_NAME_USER } from "../tables";
 
 interface User {
   username: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export type UserEntity = Entity<User>;

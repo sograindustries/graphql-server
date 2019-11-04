@@ -6,12 +6,15 @@ import {
   TABLE_NAME_USER_ROLE,
   TABLE_NAME_ROLE,
   TABLE_NAME_PATCH_ACTIVITY,
-  TABLE_NAME_USER_PATCH_S3_DATA
+  TABLE_NAME_USER_PATCH_S3_DATA,
+  TABLE_NAME_PATCH_READING
 } from "../tables";
 
 const USER_WILL = {
   id: 1,
   username: "will@argosindustries.com",
+  firstName: "Will",
+  lastName: "Brazil",
   patches: [
     {
       id: 1,
@@ -20,12 +23,14 @@ const USER_WILL = {
         { id: 1, value: 1 },
         { id: 2, value: 0.5 },
         { id: 3, value: 0.2 }
-      ]
+      ],
+      readings: [{ uri: "test-uri" }, { uri: "test-uri2" }]
     },
     {
       id: 2,
       uuid: "1354309e-23a7-465c-b0f8-26ece5c578d1",
-      batteryValues: []
+      batteryValues: [],
+      readings: [{ uri: "test-uri" }]
     }
   ]
 };
@@ -46,7 +51,12 @@ export async function seed(knex: Knex): Promise<any> {
       // User
       .then(() => {
         return knex(TABLE_NAME_USER).insert([
-          { id: USER_WILL.id, username: USER_WILL.username }
+          {
+            id: USER_WILL.id,
+            username: USER_WILL.username,
+            first_name: USER_WILL.firstName,
+            last_name: USER_WILL.lastName
+          }
         ]);
       })
 
@@ -80,8 +90,33 @@ export async function seed(knex: Knex): Promise<any> {
         return Promise.all(
           USER_WILL.patches.map(patch => {
             return knex(TABLE_NAME_PATCH_BATTERY).insert(
-              patch.batteryValues.map(battery => {
-                return { patch_id: patch.id, value: battery.value };
+              patch.batteryValues.map((battery, i) => {
+                return {
+                  created_at: new Date(
+                    new Date().setDate(new Date().getDate() - (1 - i))
+                  ),
+                  patch_id: patch.id,
+                  value: battery.value
+                };
+              })
+            );
+          })
+        );
+      })
+
+      // Readings
+      .then(() => {
+        return Promise.all(
+          USER_WILL.patches.map(patch => {
+            return knex(TABLE_NAME_PATCH_READING).insert(
+              patch.readings.map((reading, i) => {
+                return {
+                  created_at: new Date(
+                    new Date().setDate(new Date().getDate() - (1 - i))
+                  ),
+                  patch_id: patch.id,
+                  uri: reading.uri
+                };
               })
             );
           })

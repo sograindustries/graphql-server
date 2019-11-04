@@ -1,4 +1,3 @@
-import { DynamoDB } from "aws-sdk";
 import { createPatchModel } from "../db/models/patch";
 import Knex = require("knex");
 import { createUserModel } from "../db/models/user";
@@ -6,7 +5,6 @@ import { createUserModel } from "../db/models/user";
 interface Config {}
 
 interface Stores {
-  ddb: DynamoDB.DocumentClient;
   db: Knex;
 }
 

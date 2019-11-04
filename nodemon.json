@@ -1,0 +1,5 @@
+{
+  "watch": [".build/src"],
+  "ext": "js",
+  "exec": "node .build/src/graphql-local.js"
+}

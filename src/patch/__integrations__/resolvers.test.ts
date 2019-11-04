@@ -6,7 +6,7 @@ const GET_PATCHES_QUERY = gql`
   query GetPatches {
     viewer {
       patches {
-        uuid
+        bleId
       }
     }
   }
@@ -16,7 +16,7 @@ const UPDATE_PATCH_MUTATION = gql`
   mutation UpdatePatch($input: UpdatePatchInput!) {
     updatePatch(input: $input) {
       patch {
-        uuid
+        bleId
       }
     }
   }
@@ -27,7 +27,7 @@ const CREATE_PATCH_MUTATION = gql`
     createPatch(input: $input) {
       patch {
         id
-        uuid
+        bleId
       }
     }
   }
@@ -37,11 +37,17 @@ describe("resolvers", () => {
   describe("Query", () => {
     it("should return user patches.", async () => {
       const userId = 1;
-      const expectedPatches = [{ uuid: "some-uuid" }];
 
       const api: MockApi = {
         patch: {
-          getPatchesByUserId: jest.fn().mockResolvedValue(expectedPatches)
+          getPatchesByUserId: jest
+            .fn()
+            .mockResolvedValue([{ ble_id: "some-bleId" }])
+        },
+        user: {
+          getUserById: jest
+            .fn()
+            .mockResolvedValue({ id: userId, username: "some-username" })
         }
       };
       const { query } = createTestClient(
@@ -56,7 +62,7 @@ describe("resolvers", () => {
       });
 
       expect(api.patch!.getPatchesByUserId!).toHaveBeenCalledWith(userId);
-      expect(data).toEqual({ viewer: { patches: expectedPatches } });
+      expect(data).toEqual({ viewer: { patches: [{ bleId: "some-bleId" }] } });
     });
   });
 
@@ -68,8 +74,8 @@ describe("resolvers", () => {
         patch: {
           getById: jest
             .fn()
-            .mockResolvedValue({ uuid: "current-uuid", user_id: userId }),
-          update: jest.fn().mockResolvedValue({ uuid: "new-uuid" })
+            .mockResolvedValue({ ble_id: "current-bleId", user_id: userId }),
+          update: jest.fn().mockResolvedValue({ ble_id: "new-bleId" })
         }
       };
       const { mutate } = createTestClient(
@@ -78,28 +84,28 @@ describe("resolvers", () => {
 
       const { data } = await mutate({
         mutation: UPDATE_PATCH_MUTATION,
-        variables: { input: { id: patchId, uuid: "new-uuid" } }
+        variables: { input: { id: patchId, bleId: "new-bleId" } }
       });
 
       expect(api.patch!.update!).toHaveBeenCalledWith(patchId, {
-        uuid: "new-uuid",
+        ble_id: "new-bleId",
         user_id: userId
       });
       expect(api.patch!.getById!).toHaveBeenCalledWith(patchId);
 
       expect(data).toEqual({
-        updatePatch: { patch: { uuid: "new-uuid" } }
+        updatePatch: { patch: { bleId: "new-bleId" } }
       });
     });
 
-    it("should not update patch if UUID is not present.", async () => {
+    it("should not update patch if bleId is not present.", async () => {
       const userId = 1;
       const patchId = 7;
       const api: MockApi = {
         patch: {
           getById: jest
             .fn()
-            .mockResolvedValue({ uuid: "old-uuid", user_id: userId }),
+            .mockResolvedValue({ bleId: "old-bleId", user_id: userId }),
           update: jest.fn()
         }
       };
@@ -116,12 +122,12 @@ describe("resolvers", () => {
       expect(api.patch!.getById!).toHaveBeenCalledWith(patchId);
 
       expect(data).toEqual({
-        updatePatch: { patch: { uuid: "old-uuid" } }
+        updatePatch: { patch: { bleId: "old-bleId" } }
       });
     });
 
     it("should create patch", async () => {
-      const expectedPatch = { id: 1, uuid: "new-uuid", user_id: 7 };
+      const expectedPatch = { id: 1, bleId: "new-bleId", user_id: 7 };
       const api: MockApi = {
         patch: {
           create: jest.fn().mockResolvedValue(expectedPatch)
@@ -134,18 +140,18 @@ describe("resolvers", () => {
       const { data } = await mutate({
         mutation: CREATE_PATCH_MUTATION,
         variables: {
-          input: { uuid: expectedPatch.uuid, userId: expectedPatch.user_id }
+          input: { bleId: expectedPatch.bleId, userId: expectedPatch.user_id }
         }
       });
 
       expect(api.patch!.create!).toHaveBeenCalledWith({
-        uuid: expectedPatch.uuid,
+        ble_id: expectedPatch.bleId,
         user_id: expectedPatch.user_id
       });
 
       expect(data).toEqual({
         createPatch: {
-          patch: { id: expectedPatch.id, uuid: expectedPatch.uuid }
+          patch: { id: expectedPatch.id, bleId: expectedPatch.bleId }
         }
       });
     });

@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<any> {
   return knex.schema.createTable(TABLE_NAME_PATCH, patches => {
     patches.increments("id");
     patches
-      .string("uuid")
+      .string("ble_id")
       .unique()
       .notNullable();
     patches.timestamp("created_at").defaultTo(knex.fn.now());

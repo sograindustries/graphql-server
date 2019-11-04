@@ -3,20 +3,7 @@ import typeDefs from "./schema.graphql";
 import resolvers from "./resolvers";
 import { Context } from "./context";
 import { makeApi } from "./api";
-import { DynamoDB } from "aws-sdk";
 import { db } from "./db";
-
-const isTest = process.env.JEST_WORKER_ID;
-const config = {
-  convertEmptyValues: true,
-  ...(isTest && {
-    endpoint: "localhost:8000",
-    sslEnabled: false,
-    region: "local-env"
-  })
-};
-
-const ddb = new DynamoDB.DocumentClient(config);
 
 const server = new ApolloServer({
   typeDefs,
@@ -25,7 +12,7 @@ const server = new ApolloServer({
   context: async req => {
     const auth = extractAuthFromEvent(req.event);
 
-    const api = makeApi({}, { ddb, db });
+    const api = makeApi({}, { db });
 
     const user = auth ? await api.user.getUserByUsername(auth.username) : null;
     const userId = user ? user.id : null;

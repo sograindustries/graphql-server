@@ -18,6 +18,7 @@ export default gql`
     firmwareVersion: String
     sequence: Int
     uptimeMs: Int
+    tags: [String!]
   }
 
   extend type Patch {
@@ -72,6 +73,9 @@ export default gql`
 
     "Number of milliseconds patch has been on."
     uptimeMs: Int
+
+    "Set of tags used to provide additional context to reading."
+    tags: [String!]
   }
 
   type CreateReadingPayload {

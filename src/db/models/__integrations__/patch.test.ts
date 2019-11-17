@@ -5,7 +5,8 @@ import {
   TABLE_NAME_USER,
   TABLE_NAME_PATCH,
   TABLE_NAME_PATCH_BATTERY,
-  TABLE_NAME_PATCH_READING
+  TABLE_NAME_PATCH_READING,
+  TABLE_NAME_PATCH_READING_TAG
 } from "../../tables";
 
 describe("patch", () => {
@@ -361,6 +362,99 @@ describe("patch", () => {
         new Date("2019-11-09 00:00:11")
       );
       expect(listingsLastTwo.length).toBe(2);
+    });
+
+    it("should create reading tags", async () => {
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: MOCK_PATCH_READING.patchId, user_id: 1, ble_id: "patch-1" }
+      ]);
+
+      const readingId = 1;
+      await db(TABLE_NAME_PATCH_READING).insert([
+        {
+          id: readingId,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-1",
+          sequence: 0,
+          uptime_ms: 10,
+          firmware_version: "fw-v1"
+        }
+      ]);
+
+      const model = createPatchModel(db);
+      const tags = await model.createReadingTags(readingId, ["tag-1", "tag-2"]);
+
+      expect(tags).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 1,
+            reading_id: readingId,
+            value: "tag-1"
+          }),
+          expect.objectContaining({
+            id: 2,
+            reading_id: readingId,
+            value: "tag-2"
+          })
+        ])
+      );
+    });
+
+    it("should get reading tags", async () => {
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: MOCK_PATCH_READING.patchId, user_id: 1, ble_id: "patch-1" }
+      ]);
+
+      const readingId = 1;
+      await db(TABLE_NAME_PATCH_READING).insert([
+        {
+          id: readingId,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-1",
+          sequence: 0,
+          uptime_ms: 10,
+          firmware_version: "fw-v1"
+        }
+      ]);
+
+      await db(TABLE_NAME_PATCH_READING_TAG).insert([
+        {
+          id: 1,
+          reading_id: readingId,
+          value: "tag-1"
+        },
+        {
+          id: 2,
+          reading_id: readingId,
+          value: "tag-2"
+        }
+      ]);
+
+      const model = createPatchModel(db);
+      const tags = await model.getReadingTags(readingId);
+
+      expect(tags).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 2,
+            reading_id: readingId,
+            value: "tag-2"
+          }),
+          expect.objectContaining({
+            id: 1,
+            reading_id: readingId,
+            value: "tag-1"
+          })
+        ])
+      );
     });
   });
 });

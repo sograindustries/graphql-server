@@ -40,6 +40,8 @@ export type CreateReadingInput = {
   sequence?: Maybe<Scalars['Int']>,
   /** Number of milliseconds patch has been on. */
   uptimeMs?: Maybe<Scalars['Int']>,
+  /** Set of tags used to provide additional context to reading. */
+  tags?: Maybe<Array<Scalars['String']>>,
 };
 
 export type CreateReadingPayload = {
@@ -112,6 +114,7 @@ export type Reading = {
   firmwareVersion?: Maybe<Scalars['String']>,
   sequence?: Maybe<Scalars['Int']>,
   uptimeMs?: Maybe<Scalars['Int']>,
+  tags?: Maybe<Array<Scalars['String']>>,
 };
 
 /** Updates patch of provided ID. */
@@ -299,6 +302,7 @@ export type ReadingResolvers<ContextType = Context, ParentType extends Resolvers
   firmwareVersion?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
   sequence?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>,
   uptimeMs?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>,
+  tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>,
 }>;
 
 export type UpdatePatchPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdatePatchPayload'] = ResolversParentTypes['UpdatePatchPayload']> = ResolversObject<{

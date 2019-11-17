@@ -41,6 +41,17 @@ const CREATE_PATCH_MUTATION = gql`
   }
 `;
 
+const CREATE_READING_MUTATION = gql`
+  mutation CreateReading($input: CreateReadingInput!) {
+    createReading(input: $input) {
+      reading {
+        id
+        tags
+      }
+    }
+  }
+`;
+
 describe("resolvers", () => {
   describe("Query", () => {
     it("should return user patches.", async () => {
@@ -184,6 +195,56 @@ describe("resolvers", () => {
       expect(data).toEqual({
         createPatch: {
           patch: { id: expectedPatch.id, bleId: expectedPatch.bleId }
+        }
+      });
+    });
+
+    it("should create reading", async () => {
+      const readingId = 1;
+      const expectedTags = ["tag-1", "tag-2"];
+      const expectedReading = {
+        patchId: 7,
+        uri: "some-uri",
+        firmwareVersion: "f",
+        sequence: 9,
+        uptimeMs: 100
+      };
+
+      const api: MockApi = {
+        patch: {
+          insertReading: jest
+            .fn()
+            .mockResolvedValue({ id: readingId, ...expectedReading }),
+          createReadingTags: jest
+            .fn()
+            .mockResolvedValue([{ value: "tag-1" }, { value: "tag-2" }])
+        }
+      };
+      const { mutate } = createTestClient(
+        createMockServer(
+          { auth: { id: 1, username: "user", jwt: "jwt" } } /* context */,
+          api
+        )
+      );
+
+      const { data } = await mutate({
+        mutation: CREATE_READING_MUTATION,
+        variables: {
+          input: { ...expectedReading, tags: expectedTags }
+        }
+      });
+
+      expect(api.patch!.insertReading).toHaveBeenCalledWith(expectedReading);
+      expect(api.patch!.createReadingTags).toHaveBeenCalledWith(
+        readingId,
+        expectedTags
+      );
+      expect(data).toEqual({
+        createReading: {
+          reading: {
+            id: readingId,
+            tags: expectedTags
+          }
         }
       });
     });

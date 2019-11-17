@@ -132,16 +132,26 @@ const resolvers: Resolvers = {
         }
       }
 
+      if (!reading) {
+        return { reading: null };
+      }
+
+      let tags: string[] = [];
+      if (input.tags && input.tags.length > 0) {
+        tags = await api.patch
+          .createReadingTags(reading.id, input.tags)
+          .then(tags => tags.map(tag => tag.value));
+      }
+
       return {
-        reading: reading
-          ? {
-              ...reading,
-              createdAt: reading.created_at,
-              firmwareVersion: reading.firmware_version,
-              sequence: reading.sequence,
-              uptimeMs: reading.uptime_ms
-            }
-          : null
+        reading: {
+          ...reading,
+          createdAt: reading.created_at,
+          firmwareVersion: reading.firmware_version,
+          sequence: reading.sequence,
+          uptimeMs: reading.uptime_ms,
+          tags
+        }
       };
     }
   },
@@ -208,9 +218,20 @@ const resolvers: Resolvers = {
   Query: {
     readings: async (_, args, { api }) => {
       if (args.start) {
-        return api.patch.listReadingsByTimeRange(
+        const readings = await api.patch.listReadingsByTimeRange(
           args.patchId,
           new Date(args.start)
+        );
+
+        return Promise.all(
+          readings.map(async reading => {
+            return {
+              ...reading,
+              tags: await api.patch
+                .getReadingTags(reading.id)
+                .then(tags => tags.map(tag => tag.value))
+            };
+          })
         );
       } else {
         return [];

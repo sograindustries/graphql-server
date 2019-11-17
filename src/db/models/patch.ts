@@ -5,7 +5,8 @@ import {
   TABLE_NAME_USER,
   TABLE_NAME_PATCH_BATTERY,
   TABLE_NAME_USER_PATCH_S3_DATA,
-  TABLE_NAME_PATCH_READING
+  TABLE_NAME_PATCH_READING,
+  TABLE_NAME_PATCH_READING_TAG
 } from "../tables";
 import { UserEntity } from "./user";
 
@@ -32,10 +33,16 @@ interface PatchReading {
   sequence: number;
 }
 
+interface PatchReadingTag {
+  reading_id: number;
+  value: string;
+}
+
 type PatchEntity = Entity<Patch>;
 type PatchBatteryEntity = Entity<PatchBattery>;
 type PatchEcgDataEntity = Entity<PatchEcgData>;
 export type PatchReadingEntity = Entity<PatchReading>;
+type PatchReadingTagEntity = Entity<PatchReadingTag>;
 
 export function createPatchModel(db: Knex) {
   return {
@@ -190,6 +197,37 @@ export function createPatchModel(db: Knex) {
         .select("*")
         .where("id", id)
         .first();
-    }
+    },
+
+    createReadingTags: (readingId: number, tags: string[]) =>
+      createReadingTags(db, readingId, tags),
+
+    getReadingTags: (readingId: number) => getReadingTags(db, readingId)
   };
+}
+
+async function createReadingTags(db: Knex, readingId: number, tags: string[]) {
+  const ids = await Promise.all(
+    tags.map(tag => {
+      return db
+        .table<PatchReadingTagEntity>(TABLE_NAME_PATCH_READING_TAG)
+        .insert({
+          reading_id: readingId,
+          value: tag
+        })
+        .then(result => result[0]);
+    })
+  );
+
+  return db
+    .table<PatchReadingTagEntity>(TABLE_NAME_PATCH_READING_TAG)
+    .select("*")
+    .where("id", "IN", ids);
+}
+
+async function getReadingTags(db: Knex, readingId: number) {
+  return db
+    .table<PatchReadingTagEntity>(TABLE_NAME_PATCH_READING_TAG)
+    .select("*")
+    .where("reading_id", readingId);
 }

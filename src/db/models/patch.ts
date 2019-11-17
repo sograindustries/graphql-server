@@ -27,6 +27,9 @@ interface PatchEcgData {
 interface PatchReading {
   patch_id: number;
   uri: string;
+  firmware_version: string;
+  uptime_ms: number;
+  sequence: number;
 }
 
 type PatchEntity = Entity<Patch>;
@@ -144,10 +147,43 @@ export function createPatchModel(db: Knex) {
         });
     },
 
-    insertReading: async (patchId: number, uri: string) => {
+    listReadingsByTimeRange: async (patchId: number, start: Date) => {
+      const readings = await db
+        .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
+        .select("*")
+        .where("patch_id", patchId)
+        .orderBy("created_at", "desc");
+
+      const selection = [];
+      for (let i = 0; i < readings.length; i++) {
+        const reading = readings[i];
+        if (new Date(reading.created_at) >= start) {
+          selection.push(reading);
+        } else {
+          selection.push(reading);
+          break;
+        }
+      }
+
+      return selection;
+    },
+
+    insertReading: async (input: {
+      patchId: number;
+      uri: string;
+      firmwareVersion: string;
+      sequence: number;
+      uptimeMs: number;
+    }) => {
       const [id] = await db
         .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
-        .insert({ patch_id: patchId, uri });
+        .insert({
+          patch_id: input.patchId,
+          uri: input.uri,
+          firmware_version: input.firmwareVersion,
+          sequence: input.sequence,
+          uptime_ms: input.uptimeMs
+        });
 
       return db
         .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)

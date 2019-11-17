@@ -218,58 +218,149 @@ describe("patch", () => {
   });
 
   describe("readings", () => {
-    it("should insert reading", async () => {
-      const patchId = 1;
+    const MOCK_PATCH_READING = {
+      patchId: 1,
+      uri: "some-uri",
+      firmwareVersion: "some-fw",
+      sequence: 7,
+      uptimeMs: 10
+    };
 
+    it("should insert reading", async () => {
       // setup users.
       await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
 
       // setup patches.
       await db(TABLE_NAME_PATCH).insert([
-        { id: patchId, user_id: 1, ble_id: "patch-1" }
+        { id: MOCK_PATCH_READING.patchId, user_id: 1, ble_id: "patch-1" }
       ]);
 
       const model = createPatchModel(db);
-      const reading = await model.insertReading(patchId, "some-uri");
+      const reading = await model.insertReading(MOCK_PATCH_READING);
 
       expect(reading).toEqual(
-        expect.objectContaining({ id: 1, patch_id: patchId, uri: "some-uri" })
+        expect.objectContaining({
+          id: 1,
+          patch_id: 1,
+          uri: "some-uri",
+          firmware_version: "some-fw",
+          sequence: 7,
+          uptime_ms: 10,
+          created_at: expect.any(Date),
+          updated_at: expect.any(Date)
+        })
       );
     });
 
     it("should list readings", async () => {
-      const patchId = 1;
-
       // setup users.
       await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
 
       // setup patches.
       await db(TABLE_NAME_PATCH).insert([
-        { id: patchId, user_id: 1, ble_id: "patch-1" }
+        { id: MOCK_PATCH_READING.patchId, user_id: 1, ble_id: "patch-1" }
       ]);
 
       await db(TABLE_NAME_PATCH_READING).insert([
-        { id: 1, patch_id: patchId, uri: "uri-1" },
-        { id: 2, patch_id: patchId, uri: "uri-2" }
+        {
+          id: 1,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-1",
+          sequence: 0,
+          uptime_ms: 10,
+          firmware_version: "fw-v1"
+        },
+        {
+          id: 2,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-2",
+          sequence: 1,
+          uptime_ms: 11,
+          firmware_version: "fw-v1"
+        }
       ]);
 
       const model = createPatchModel(db);
-      const listings = await model.listReadings(patchId);
+      const listings = await model.listReadings(MOCK_PATCH_READING.patchId);
 
       expect(listings).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             id: 1,
-            patch_id: patchId,
-            uri: "uri-1"
+            uri: "uri-1",
+            sequence: 0,
+            uptime_ms: 10,
+            firmware_version: "fw-v1"
           }),
           expect.objectContaining({
             id: 2,
-            patch_id: patchId,
-            uri: "uri-2"
+            uri: "uri-2",
+            sequence: 1,
+            uptime_ms: 11,
+            firmware_version: "fw-v1"
           })
         ])
       );
+    });
+
+    it("should list readings for start date", async () => {
+      // setup users.
+      await db(TABLE_NAME_USER).insert([{ id: 1, username: "will" }]);
+
+      // setup patches.
+      await db(TABLE_NAME_PATCH).insert([
+        { id: MOCK_PATCH_READING.patchId, user_id: 1, ble_id: "patch-1" }
+      ]);
+
+      await db(TABLE_NAME_PATCH_READING).insert([
+        {
+          id: 1,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-1",
+          sequence: 0,
+          uptime_ms: 10,
+          firmware_version: "fw-v1",
+          created_at: new Date("2019-11-09 00:00:00")
+        },
+        {
+          id: 2,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-2",
+          sequence: 1,
+          uptime_ms: 11,
+          firmware_version: "fw-v1",
+          created_at: new Date("2019-11-09 00:00:10")
+        },
+        {
+          id: 3,
+          patch_id: MOCK_PATCH_READING.patchId,
+          uri: "uri-2",
+          sequence: 1,
+          uptime_ms: 11,
+          firmware_version: "fw-v1",
+          created_at: new Date("2019-11-09 00:00:20")
+        }
+      ]);
+
+      const model = createPatchModel(db);
+
+      const listingsAll = await model.listReadingsByTimeRange(
+        MOCK_PATCH_READING.patchId,
+        new Date("2019-11-09 00:00:00")
+      );
+      expect(listingsAll.length).toBe(3);
+
+      const listingsLatest = await model.listReadingsByTimeRange(
+        MOCK_PATCH_READING.patchId,
+        new Date("2019-11-09 00:01:00")
+      );
+      expect(listingsLatest.length).toBe(1);
+
+      const listingsLastTwo = await model.listReadingsByTimeRange(
+        MOCK_PATCH_READING.patchId,
+        new Date("2019-11-09 00:00:11")
+      );
+      expect(listingsLastTwo.length).toBe(2);
     });
   });
 });

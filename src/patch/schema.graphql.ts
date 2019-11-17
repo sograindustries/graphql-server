@@ -15,6 +15,9 @@ export default gql`
     id: Int!
     createdAt: String
     uri: String
+    firmwareVersion: String
+    sequence: Int
+    uptimeMs: Int
   }
 
   extend type Patch {
@@ -60,6 +63,15 @@ export default gql`
     patchId: Int
     patchBleId: ID
     uri: String
+
+    "Commit hash associated with FW build."
+    firmwareVersion: String
+
+    "Packet sequence number since device was last powered on. Reset to 0 when device is powered off."
+    sequence: Int
+
+    "Number of milliseconds patch has been on."
+    uptimeMs: Int
   }
 
   type CreateReadingPayload {
@@ -71,5 +83,9 @@ export default gql`
     updatePatch(input: UpdatePatchInput!): UpdatePatchPayload
     createPatch(input: CreatePatchInput!): CreatePatchPayload
     createReading(input: CreateReadingInput!): CreateReadingPayload
+  }
+
+  extend type Query {
+    readings(patchId: Int!, start: String): [Reading]
   }
 `;

@@ -5,6 +5,9 @@ export async function up(knex: Knex): Promise<any> {
   return knex.schema.createTable(TABLE_NAME_PATCH_READING, table => {
     table.increments("id");
     table.string("uri").notNullable();
+    table.string("firmware_version");
+    table.integer("uptime_ms");
+    table.integer("sequence");
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.timestamp("updated_at").defaultTo(knex.fn.now());
 

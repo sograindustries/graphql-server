@@ -8,7 +8,11 @@ const resolvers: Resolvers = {
         return [];
       }
 
-      return api.patch.getPatchesByUserId(user.id);
+      const patches = await api.patch.getPatchesByUserId(user.id);
+      return patches.map(patch => ({
+        ...patch,
+        bleId: patch.ble_id
+      }));
     },
 
     patch: async (user, { id }, { auth, api }) => {
@@ -17,7 +21,6 @@ const resolvers: Resolvers = {
       }
 
       // TODO(willbrazil): authorization
-
       const patch = await api.patch.getById(id);
       return patch || null;
     }
@@ -68,17 +71,40 @@ const resolvers: Resolvers = {
       }
 
       if (!input.uri) {
-        throw new UserInputError("URI and must be provided.");
+        throw new UserInputError("URI must be provided.");
+      }
+
+      if (!input.firmwareVersion) {
+        throw new UserInputError("firmwareVersion must be provided.");
+      }
+
+      if (!input.sequence) {
+        throw new UserInputError("sequence must be provided.");
+      }
+
+      if (!input.uptimeMs) {
+        throw new UserInputError("uptimeMs must be provided.");
       }
 
       if (!input.patchId && !input.patchBleId) {
         throw new UserInputError("Patch ID or Patch BLE ID must be provided.");
       }
 
+      const readingInput = {
+        patchId: input.patchId,
+        uri: input.uri,
+        firmwareVersion: input.firmwareVersion,
+        sequence: input.sequence,
+        uptimeMs: input.uptimeMs
+      };
+
       let reading = null;
 
       if (input.patchId) {
-        reading = await api.patch.insertReading(input.patchId, input.uri);
+        reading = await api.patch.insertReading({
+          ...readingInput,
+          patchId: input.patchId
+        });
       }
 
       if (!input.patchId && input.patchBleId) {
@@ -94,8 +120,15 @@ const resolvers: Resolvers = {
           if (!newPatch) {
             throw new Error("Failed to create new patch for reading.");
           }
-
-          reading = await api.patch.insertReading(newPatch.id, input.uri);
+          reading = await api.patch.insertReading({
+            ...readingInput,
+            patchId: newPatch.id
+          });
+        } else {
+          reading = await api.patch.insertReading({
+            ...readingInput,
+            patchId: patch.id
+          });
         }
       }
 
@@ -103,7 +136,10 @@ const resolvers: Resolvers = {
         reading: reading
           ? {
               ...reading,
-              createdAt: reading.created_at
+              createdAt: reading.created_at,
+              firmwareVersion: reading.firmware_version,
+              sequence: reading.sequence,
+              uptimeMs: reading.uptime_ms
             }
           : null
       };
@@ -166,6 +202,19 @@ const resolvers: Resolvers = {
         return api.patch.listReadings(id);
       }
       return [];
+    }
+  },
+
+  Query: {
+    readings: async (_, args, { api }) => {
+      if (args.start) {
+        return api.patch.listReadingsByTimeRange(
+          args.patchId,
+          new Date(args.start)
+        );
+      } else {
+        return [];
+      }
     }
   }
 };

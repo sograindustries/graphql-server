@@ -12,6 +12,14 @@ const GET_PATCHES_QUERY = gql`
   }
 `;
 
+const GET_READINGS_BY_TIME_QUERY = gql`
+  query GetReadingsByTimeRange($patchId: Int!, $start: String) {
+    readings(patchId: $patchId, start: $start) {
+      id
+    }
+  }
+`;
+
 const UPDATE_PATCH_MUTATION = gql`
   mutation UpdatePatch($input: UpdatePatchInput!) {
     updatePatch(input: $input) {
@@ -63,6 +71,30 @@ describe("resolvers", () => {
 
       expect(api.patch!.getPatchesByUserId!).toHaveBeenCalledWith(userId);
       expect(data).toEqual({ viewer: { patches: [{ bleId: "some-bleId" }] } });
+    });
+
+    it("should return readings after start time.", async () => {
+      const api: MockApi = {
+        patch: {
+          listReadingsByTimeRange: jest
+            .fn()
+            .mockResolvedValue([{ ble_id: "some-bleId" }])
+        }
+      };
+      const { query } = createTestClient(createMockServer({}, api));
+
+      await query({
+        query: GET_READINGS_BY_TIME_QUERY,
+        variables: {
+          patchId: 1,
+          start: "2019-11-09 23:16:39"
+        }
+      });
+
+      expect(api.patch!.listReadingsByTimeRange!).toHaveBeenCalledWith(
+        1,
+        new Date("2019-11-09 23:16:39")
+      );
     });
   });
 

@@ -26,6 +26,7 @@
     "@types/node": "^12.11.1",
     "apollo-server-testing": "^2.9.6",
     "concurrently": "^5.0.0",
+    "graphql-toolkit": "^0.7.4",
     "jest": "^24.9.0",
     "nodemon": "^1.19.4",
     "serverless-offline": "^5.12.0",

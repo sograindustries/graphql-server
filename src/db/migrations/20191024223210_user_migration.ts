@@ -2,7 +2,7 @@ import * as Knex from "knex";
 import { TABLE_NAME_USER } from "../tables";
 
 export async function up(knex: Knex): Promise<any> {
-  return knex.schema.createTable(TABLE_NAME_USER, users => {
+  return knex.schema.createTableIfNotExists(TABLE_NAME_USER, users => {
     users.increments("id").notNullable();
     users
       .string("username")

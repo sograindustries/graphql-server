@@ -457,4 +457,10 @@ describe("patch", () => {
       );
     });
   });
+
+  describe.skip("patch_mode", () => {
+    it("should set patch mode", () => {});
+    it("should return patch mode", () => {});
+    it("should return null if patch mode is not set", () => {});
+  });
 });

@@ -85,7 +85,6 @@ export async function seed(knex: Knex): Promise<any> {
         ]);
       })
 
-    /*
       // Patches
       .then(() => {
         return knex(TABLE_NAME_PATCH).insert(
@@ -98,6 +97,7 @@ export async function seed(knex: Knex): Promise<any> {
           })
         );
       })
+    /*
 
     
       // Battery

@@ -6,7 +6,8 @@ import {
   TABLE_NAME_PATCH_BATTERY,
   TABLE_NAME_USER_PATCH_S3_DATA,
   TABLE_NAME_PATCH_READING,
-  TABLE_NAME_PATCH_READING_TAG
+  TABLE_NAME_PATCH_READING_TAG,
+  TABLE_NAME_PATCH_MODE
 } from "../tables";
 import { UserEntity } from "./user";
 
@@ -33,6 +34,11 @@ interface PatchReading {
   sequence: number;
 }
 
+interface PatchMode {
+  patch_id: number;
+  mode?: string | null;
+}
+
 interface PatchReadingTag {
   reading_id: number;
   value: string;
@@ -43,6 +49,7 @@ type PatchBatteryEntity = Entity<PatchBattery>;
 type PatchEcgDataEntity = Entity<PatchEcgData>;
 export type PatchReadingEntity = Entity<PatchReading>;
 type PatchReadingTagEntity = Entity<PatchReadingTag>;
+type PatchModeEntity = Entity<PatchMode>;
 
 export function createPatchModel(db: Knex) {
   return {
@@ -202,7 +209,46 @@ export function createPatchModel(db: Knex) {
     createReadingTags: (readingId: number, tags: string[]) =>
       createReadingTags(db, readingId, tags),
 
-    getReadingTags: (readingId: number) => getReadingTags(db, readingId)
+    getReadingTags: (readingId: number) => getReadingTags(db, readingId),
+
+    setPatchMode: async (patchId: number, mode?: string | null) => {
+      let result = await db
+        .select("id")
+        .from(TABLE_NAME_PATCH_MODE)
+        .where("patch_id", patchId)
+        .first();
+
+      let id: number | null = result ? result.id : null;
+      if (!id) {
+        [id] = await db.table<PatchModeEntity>(TABLE_NAME_PATCH_MODE).insert({
+          patch_id: patchId,
+          mode
+        });
+      } else {
+        await db
+          .table<PatchModeEntity>(TABLE_NAME_PATCH_MODE)
+          .update({
+            mode
+          })
+          .where("patch_id", patchId);
+      }
+
+      const blah = await db
+        .table<PatchModeEntity>(TABLE_NAME_PATCH_MODE)
+        .select("*")
+        .where("id", id)
+        .first();
+
+      return blah;
+    },
+
+    getPatchMode: async (patchId: number) => {
+      return db
+        .table<PatchModeEntity>(TABLE_NAME_PATCH_MODE)
+        .select("*")
+        .where("patch_id", patchId)
+        .first();
+    }
   };
 }
 

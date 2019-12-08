@@ -27,9 +27,9 @@ export default gql`
     firmwareVersion: String
     appVersion: String
     mobileDevice: String
-
     readingCount: Int
     readings: [Reading!]
+    mode: String
   }
 
   extend type User {
@@ -83,10 +83,22 @@ export default gql`
     reading: Reading
   }
 
+  "Creates a reading for a given patch."
+  input SetPatchModeInput {
+    patchId: Int
+    mode: String
+  }
+
+  type SetPatchModePayload {
+    id: Int!
+    mode: String
+  }
+
   extend type Mutation {
     updatePatch(input: UpdatePatchInput!): UpdatePatchPayload
     createPatch(input: CreatePatchInput!): CreatePatchPayload
     createReading(input: CreateReadingInput!): CreateReadingPayload
+    setPatchMode(input: SetPatchModeInput!): SetPatchModePayload
   }
 
   extend type Query {

@@ -153,6 +153,26 @@ const resolvers: Resolvers = {
           tags
         }
       };
+    },
+
+    setPatchMode: async (_, { input }, { api, auth }) => {
+      if (!auth) {
+        throw new AuthenticationError("Not authorized.");
+      }
+
+      if (!input.patchId) {
+        throw new UserInputError("Patch ID must be provided.");
+      }
+
+      const record = await api.patch.setPatchMode(input.patchId, input.mode);
+
+      if (!record) {
+        throw new Error("Unable to create record");
+      }
+
+      return {
+        mode: record.mode
+      };
     }
   },
 
@@ -212,6 +232,15 @@ const resolvers: Resolvers = {
         return api.patch.listReadings(id);
       }
       return [];
+    },
+
+    mode: async ({ id }, _, { api }) => {
+      if (id) {
+        const record = await api.patch.getPatchMode(id);
+        return (record && record.mode) || null;
+      }
+
+      return null;
     }
   },
 

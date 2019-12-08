@@ -40,8 +40,10 @@
     "build": "yarn codegen && tsc",
     "watch": "concurrently -k \"nodemon\" \"tsc -w\"",
     "codegen": "graphql-codegen --config codegen.yml",
-    "test": "jest --runInBand",
-    "migrate": "knex migrate:latest",
-    "deploy": "sls deploy --stage production"
+    "test": "jest",
+    "deploy": "sls deploy --stage production",
+    "knex:migrate:make": "knex --knexfile src/db/knexfile.ts -x ts migrate:make",
+    "knex:migrate:latest": "knex --knexfile src/db/knexfile.ts migrate:latest --env production",
+    "knex:migrate:rollback": "knex --knexfile src/db/knexfile.ts migrate:rollback --env production"
   }
 }

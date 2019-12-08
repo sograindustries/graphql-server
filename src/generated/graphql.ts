@@ -55,6 +55,7 @@ export type Mutation = {
   updatePatch?: Maybe<UpdatePatchPayload>,
   createPatch?: Maybe<CreatePatchPayload>,
   createReading?: Maybe<CreateReadingPayload>,
+  setPatchMode?: Maybe<SetPatchModePayload>,
   version?: Maybe<Scalars['String']>,
 };
 
@@ -73,6 +74,11 @@ export type MutationCreateReadingArgs = {
   input: CreateReadingInput
 };
 
+
+export type MutationSetPatchModeArgs = {
+  input: SetPatchModeInput
+};
+
 export type Patch = {
    __typename?: 'Patch',
   id: Scalars['Int'],
@@ -84,6 +90,7 @@ export type Patch = {
   mobileDevice?: Maybe<Scalars['String']>,
   readingCount?: Maybe<Scalars['Int']>,
   readings?: Maybe<Array<Reading>>,
+  mode?: Maybe<Scalars['String']>,
 };
 
 export type Query = {
@@ -115,6 +122,18 @@ export type Reading = {
   sequence?: Maybe<Scalars['Int']>,
   uptimeMs?: Maybe<Scalars['Int']>,
   tags?: Maybe<Array<Scalars['String']>>,
+};
+
+/** Creates a reading for a given patch. */
+export type SetPatchModeInput = {
+  patchId?: Maybe<Scalars['Int']>,
+  mode?: Maybe<Scalars['String']>,
+};
+
+export type SetPatchModePayload = {
+   __typename?: 'SetPatchModePayload',
+  id: Scalars['Int'],
+  mode?: Maybe<Scalars['String']>,
 };
 
 /** Updates patch of provided ID. */
@@ -232,6 +251,8 @@ export type ResolversTypes = ResolversObject<{
   CreateReadingInput: ResolverTypeWrapper<Partial<CreateReadingInput>>,
   ID: ResolverTypeWrapper<Partial<Scalars['ID']>>,
   CreateReadingPayload: ResolverTypeWrapper<Partial<CreateReadingPayload>>,
+  SetPatchModeInput: ResolverTypeWrapper<Partial<SetPatchModeInput>>,
+  SetPatchModePayload: ResolverTypeWrapper<Partial<SetPatchModePayload>>,
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']>>,
 }>;
 
@@ -253,6 +274,8 @@ export type ResolversParentTypes = ResolversObject<{
   CreateReadingInput: Partial<CreateReadingInput>,
   ID: Partial<Scalars['ID']>,
   CreateReadingPayload: Partial<CreateReadingPayload>,
+  SetPatchModeInput: Partial<SetPatchModeInput>,
+  SetPatchModePayload: Partial<SetPatchModePayload>,
   Boolean: Partial<Scalars['Boolean']>,
 }>;
 
@@ -273,6 +296,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updatePatch?: Resolver<Maybe<ResolversTypes['UpdatePatchPayload']>, ParentType, ContextType, RequireFields<MutationUpdatePatchArgs, 'input'>>,
   createPatch?: Resolver<Maybe<ResolversTypes['CreatePatchPayload']>, ParentType, ContextType, RequireFields<MutationCreatePatchArgs, 'input'>>,
   createReading?: Resolver<Maybe<ResolversTypes['CreateReadingPayload']>, ParentType, ContextType, RequireFields<MutationCreateReadingArgs, 'input'>>,
+  setPatchMode?: Resolver<Maybe<ResolversTypes['SetPatchModePayload']>, ParentType, ContextType, RequireFields<MutationSetPatchModeArgs, 'input'>>,
   version?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
 }>;
 
@@ -286,6 +310,7 @@ export type PatchResolvers<ContextType = Context, ParentType extends ResolversPa
   mobileDevice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
   readingCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>,
   readings?: Resolver<Maybe<Array<ResolversTypes['Reading']>>, ParentType, ContextType>,
+  mode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
@@ -303,6 +328,11 @@ export type ReadingResolvers<ContextType = Context, ParentType extends Resolvers
   sequence?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>,
   uptimeMs?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>,
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>,
+}>;
+
+export type SetPatchModePayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SetPatchModePayload'] = ResolversParentTypes['SetPatchModePayload']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
+  mode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
 }>;
 
 export type UpdatePatchPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdatePatchPayload'] = ResolversParentTypes['UpdatePatchPayload']> = ResolversObject<{
@@ -326,6 +356,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Patch?: PatchResolvers<ContextType>,
   Query?: QueryResolvers<ContextType>,
   Reading?: ReadingResolvers<ContextType>,
+  SetPatchModePayload?: SetPatchModePayloadResolvers<ContextType>,
   UpdatePatchPayload?: UpdatePatchPayloadResolvers<ContextType>,
   User?: UserResolvers<ContextType>,
 }>;

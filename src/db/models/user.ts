@@ -34,6 +34,9 @@ export function createUserModel(db: Knex) {
         .where("id", id)
         .select("*")
         .first();
+    },
+    listUsers: () => {
+      return db.table<UserEntity>(TABLE_NAME_USER).select("*");
     }
   };
 }

@@ -13,7 +13,8 @@
     "merge-graphql-schemas": "^1.7.0",
     "mysql2": "^1.7.0",
     "serverless": "^1.55.1",
-    "serverless-dynamodb-local": "^0.2.38"
+    "serverless-dynamodb-local": "^0.2.38",
+    "ts-node": "^8.4.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.8.1",
@@ -33,7 +34,6 @@
     "serverless-plugin-typescript": "^1.1.9",
     "source-map-support": "^0.5.13",
     "ts-jest": "^24.1.0",
-    "ts-node": "^8.4.1",
     "typescript": "^3.6.4"
   },
   "scripts": {

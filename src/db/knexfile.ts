@@ -1,5 +1,3 @@
-require("ts-node/register");
-
 module.exports = {
   test: {
     client: "mysql2",

@@ -152,6 +152,8 @@ export type User = {
    __typename?: 'User',
   patches: Array<Patch>,
   patch?: Maybe<Patch>,
+  patients?: Maybe<Array<User>>,
+  readings?: Maybe<Array<Reading>>,
   id: Scalars['Int'],
   username: Scalars['String'],
   firstName?: Maybe<Scalars['String']>,
@@ -342,6 +344,8 @@ export type UpdatePatchPayloadResolvers<ContextType = Context, ParentType extend
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   patches?: Resolver<Array<ResolversTypes['Patch']>, ParentType, ContextType>,
   patch?: Resolver<Maybe<ResolversTypes['Patch']>, ParentType, ContextType, RequireFields<UserPatchArgs, 'id'>>,
+  patients?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>,
+  readings?: Resolver<Maybe<Array<ResolversTypes['Reading']>>, ParentType, ContextType>,
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,

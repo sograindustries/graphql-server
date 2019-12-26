@@ -165,6 +165,11 @@ export type UserPatchArgs = {
   id: Scalars['Int']
 };
 
+
+export type UserReadingsArgs = {
+  startUnix?: Maybe<Scalars['Int']>
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -345,7 +350,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   patches?: Resolver<Array<ResolversTypes['Patch']>, ParentType, ContextType>,
   patch?: Resolver<Maybe<ResolversTypes['Patch']>, ParentType, ContextType, RequireFields<UserPatchArgs, 'id'>>,
   patients?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>,
-  readings?: Resolver<Maybe<Array<ResolversTypes['Reading']>>, ParentType, ContextType>,
+  readings?: Resolver<Maybe<Array<ResolversTypes['Reading']>>, ParentType, ContextType, UserReadingsArgs>,
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,

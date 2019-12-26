@@ -2,13 +2,15 @@ import { Resolvers } from "../generated/graphql";
 
 const resolvers: Resolvers = {
   User: {
-    readings: (user, _, { api }) => {
-      console.log("HELLO,", user);
+    readings: (user, { startUnix }, { api }) => {
       if (!user.id) {
         return [];
       }
 
-      return api.reading.listReadingsByTimeRange(user.id, new Date(0));
+      return api.reading.listReadingsByTimeRange(
+        user.id,
+        startUnix ? new Date(startUnix * 1000) : undefined
+      );
     }
   }
 };

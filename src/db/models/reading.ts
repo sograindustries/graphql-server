@@ -4,10 +4,7 @@ import { PatchReadingEntity } from "./patch";
 
 export function createReadingModel(db: Knex) {
   return {
-    listReadingsByTimeRange: async (
-      userId: number,
-      start: Date = new Date(0)
-    ) => {
+    listReadingsByTimeRange: async (userId: number, _: Date = new Date(0)) => {
       const readings = await db
         .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
         .innerJoin(
@@ -21,6 +18,7 @@ export function createReadingModel(db: Knex) {
         .limit(5)
         .orderBy("created_at", "desc");
 
+      /*
       const selection = [];
       for (let i = 0; i < readings.length; i++) {
         const reading = readings[i];
@@ -31,8 +29,9 @@ export function createReadingModel(db: Knex) {
           break;
         }
       }
+      */
 
-      return selection;
+      return readings;
     }
   };
 }

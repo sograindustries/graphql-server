@@ -1,0 +1,1 @@
+./node_modules/.bin/jest src/fda/__integrations__/index.test.ts

@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  core:
+    build: ./
+    command: ./run-tests.sh
+    depends_on:
+      - db
+    
+  db:
+    container_name: docker-local-mysql
+    image: mysql:5.7.21
+    volumes:
+        - ./data:/var/lib/mysql
+        - ./config:/docker-entrypoint-initdb.d
+    restart: always
+    env_file:
+        - ./graphql.env
+    environment:
+        MYSQL_DATABASE: ${DB_NAME}
+        MYSQL_USER: ${DB_USER}
+        MYSQL_PASSWORD: ${DB_PASSWORD}
+        MYSQL_ROOT_PASSWORD: password
+    ports:
+        - 3307:3306
+    environment:
+        MYSQL_ROOT_PASSWORD: root

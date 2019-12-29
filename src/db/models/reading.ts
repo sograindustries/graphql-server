@@ -18,20 +18,43 @@ export function createReadingModel(db: Knex) {
         .limit(5)
         .orderBy("created_at", "desc");
 
-      /*
-      const selection = [];
-      for (let i = 0; i < readings.length; i++) {
-        const reading = readings[i];
-        if (new Date(reading.created_at) >= start) {
-          selection.push(reading);
-        } else {
-          selection.push(reading);
-          break;
-        }
-      }
-      */
-
       return readings;
+    },
+
+    create: async (input: {
+      patchId: number;
+      uri: string;
+      firmwareVersion: string;
+      sequence: number;
+      uptimeMs: number;
+    }) => {
+      const [id] = await db
+        .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
+        .insert({
+          patch_id: input.patchId,
+          uri: input.uri,
+          firmware_version: input.firmwareVersion,
+          sequence: input.sequence,
+          uptime_ms: input.uptimeMs
+        });
+
+      return db
+        .table<PatchReadingEntity>(TABLE_NAME_PATCH_READING)
+        .select("*")
+        .where("id", id)
+        .first()
+        .then(
+          entry =>
+            entry && {
+              id: entry.id,
+              uri: entry.uri,
+              patchId: entry.patch_id,
+              firmwareVersion: entry.firmware_version,
+              sequence: input.sequence,
+              uptimeMs: entry.uptime_ms,
+              createdAt: entry.created_at
+            }
+        );
     }
   };
 }

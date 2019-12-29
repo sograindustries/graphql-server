@@ -8,3 +8,4 @@ export const TABLE_NAME_PATCH_BATTERY = "patch_battery";
 export const TABLE_NAME_PATCH_READING = "patch_reading";
 export const TABLE_NAME_PATCH_MODE = "patch_mode";
 export const TABLE_NAME_PATCH_READING_TAG = "patch_reading_tag";
+export const TABLE_NAME_USER_BPM = "user_bpm";

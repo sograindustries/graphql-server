@@ -3,6 +3,8 @@ module.exports = {
   transform: {
     "^.+\\.tsx?$": "ts-jest"
   },
-  testMatch: ["**/__integrations__/**/*.test.ts"]
+  coverageReporters: ["lcov", "html"],
+  testMatch: ["**/patch/__integrations__/**/*.test.ts"],
+  coverageDirectory: "./coverage/"
   // preset: "@shelf/jest-dynamodb"
 };

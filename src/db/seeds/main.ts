@@ -9,33 +9,53 @@ import {
   TABLE_NAME_USER_PATCH_S3_DATA
 } from "../tables";
 
+const ROLES = {
+  ADMIN: {
+    id: 1,
+    name: "admin"
+  },
+  USER: {
+    id: 2,
+    name: "user"
+  }
+};
+
 const USER_WILL = {
   id: 1,
   username: "will@argosindustries.com",
   firstName: "Will",
-  lastName: "Brazil",
+  lastName: "Guedes",
+  roles: [ROLES.ADMIN, ROLES.USER],
   patches: [
     {
       id: 1,
-      ble_id: "1354309e-23a7-465c-b0f8-26ece5c578d0",
-      batteryValues: [
-        { id: 1, value: 1 },
-        { id: 2, value: 0.5 },
-        { id: 3, value: 0.2 }
-      ],
-      readings: [{ uri: "test-uri" }, { uri: "test-uri2" }]
+      bleId: "will-ble-1",
+      readings: []
     },
     {
       id: 2,
-      ble_id: "1354309e-23a7-465c-b0f8-26ece5c578d1",
-      batteryValues: [],
-      readings: [{ uri: "test-uri" }]
+      bleId: "will-ble-2",
+      readings: []
     }
   ]
 };
-const USER_ANDY = {
-  id: 2
+
+const USER_ANDY: typeof USER_WILL = {
+  id: 2,
+  username: "andy@argosindustries.com",
+  firstName: "Andrew",
+  lastName: "Casper",
+  roles: [ROLES.ADMIN, ROLES.USER],
+  patches: [
+    {
+      id: 100,
+      bleId: "andy-ble-1",
+      readings: []
+    }
+  ]
 };
+
+const USERS = [USER_WILL, USER_ANDY];
 
 export async function seed(knex: Knex): Promise<any> {
   // Deletes ALL existing entries
@@ -50,93 +70,46 @@ export async function seed(knex: Knex): Promise<any> {
       .then(() => knex(TABLE_NAME_ROLE).del())
       .then(() => knex(TABLE_NAME_USER).del())
 
-      // User
-      .then(() => {
-        return knex(TABLE_NAME_USER).insert([
-          {
-            id: USER_WILL.id,
-            username: USER_WILL.username,
-            first_name: USER_WILL.firstName,
-            last_name: USER_WILL.lastName
-          },
-          {
-            id: USER_ANDY.id,
-            username: "andrew@argosindustries.com",
-            first_name: "Andrew",
-            last_name: "Casper"
-          }
-        ]);
-      })
-
       // Roles
       .then(() => {
-        return knex(TABLE_NAME_ROLE).insert([
-          { id: 1, name: "admin" },
-          { id: 2, name: "patient" },
-          { id: 3, name: "doctor" }
-        ]);
+        return knex(TABLE_NAME_ROLE).insert([ROLES.ADMIN, ROLES.USER]);
       })
+
+      // User
+      .then(() =>
+        knex(TABLE_NAME_USER).insert(
+          USERS.map(user => ({
+            id: user.id,
+            username: user.username,
+            first_name: user.firstName,
+            last_name: user.lastName
+          }))
+        )
+      )
 
       // User role
       .then(() => {
-        return knex(TABLE_NAME_USER_ROLE).insert([
-          { user_id: USER_WILL.id, role_id: 1 },
-          { user_id: USER_ANDY.id, role_id: 1 }
-        ]);
+        return knex(TABLE_NAME_USER_ROLE).insert(
+          USERS.map(user =>
+            user.roles.map(role => ({
+              role_id: role.id,
+              user_id: user.id
+            }))
+          ).reduce((a, b) => [...a, ...b], [])
+        );
       })
 
       // Patches
       .then(() => {
         return knex(TABLE_NAME_PATCH).insert(
-          USER_WILL.patches.map(patch => {
-            return {
+          USERS.map(user =>
+            user.patches.map(patch => ({
               id: patch.id,
-              user_id: USER_WILL.id,
-              ble_id: patch.ble_id
-            };
-          })
+              ble_id: patch.bleId,
+              user_id: user.id
+            }))
+          ).reduce((a, b) => [...a, ...b], [])
         );
       })
-    /*
-
-    
-      // Battery
-      .then(() => {
-        return Promise.all(
-          USER_WILL.patches.map(patch => {
-            return knex(TABLE_NAME_PATCH_BATTERY).insert(
-              patch.batteryValues.map((battery, i) => {
-                return {
-                  created_at: new Date(
-                    new Date().setDate(new Date().getDate() - (1 - i))
-                  ),
-                  patch_id: patch.id,
-                  value: battery.value
-                };
-              })
-            );
-          })
-        );
-      })
-
-      // Readings
-      .then(() => {
-        return Promise.all(
-          USER_WILL.patches.map(patch => {
-            return knex(TABLE_NAME_PATCH_READING).insert(
-              patch.readings.map((reading, i) => {
-                return {
-                  created_at: new Date(
-                    new Date().setDate(new Date().getDate() - (1 - i))
-                  ),
-                  patch_id: patch.id,
-                  uri: reading.uri
-                };
-              })
-            );
-          })
-        );
-      })
-      */
   );
 }

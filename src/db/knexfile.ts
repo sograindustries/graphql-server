@@ -24,7 +24,7 @@ module.exports = {
   development: {
     client: "mysql2",
     connection: {
-      host: "database-1.comtzk4asbqy.us-east-1.rds.amazonaws.com",
+      host: "sogra-dev.comtzk4asbqy.us-east-1.rds.amazonaws.com",
       database: "sogra",
       user: "admin",
       password: "sograindustries"
